@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+
+<head>
+  <title>KTH | {{title}}</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{description}}">
+  <link rel="shortcut icon" id="favicon" href="{{proxyPrefix}}/static/icon/favicon">
+
+  {{#if canonicalUrl}}
+  <link href="{{canonicalUrl}}" rel="canonical">
+  {{/if}}
+
+  {{prefixStyle '/static/kth-style/css/kth-bootstrap.css' 'styles' 'screen'}}
+  {{prefixStyle '/static/app.css' 'styles' 'screen'}}
+
+  {{{render 'styles'}}}
+
+  {{#if blocks.klaroConfig}}
+    {{{blocks.klaroConfig}}}
+    {{prefixScript '/static/kth-style/js/klaro-no-css.js' 'head-scripts'}}
+  {{/if}}
+
+  {{prefixScript '/static/vendor.js' 'head-scripts'}}
+  {{prefixScript '/static/browserConfig' 'head-scripts'}}
+  {{prefixScript '/static/kth-style/js/menus.js' 'head-scripts'}}
+  {{prefixScript '/static/kth-style/js/backtotop.js' 'head-scripts'}}
+  {{{render 'head-scripts'}}}
+
+  <script src="{{toolbarUrl}}"></script>
+</head>
+
+<body>
+  <a class="skipToMainContent" href="#mainContent" tabindex="1">{{i18n 'skip_to_main_content' lang}}</a>
+  {{> kthHeader }}
+  <div class="container main">
+    <div class="row">
+        {{{body}}}
+    </div>
+  </div>
+  {{> kthFooter }}
+  {{{render 'scripts'}}}
+</body>
+
+</html>

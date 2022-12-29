@@ -1,0 +1,65 @@
+version: '3.5'
+
+services:
+  redis:
+    image: redis:6.2.3
+    ports:
+      - 6379
+
+  # oidc:
+  #   image: qlik/simple-oidc-provider:latest
+  #   ports:
+  #     - 9000
+
+  mock-api:
+    build: ./test/mock-api
+    ports:
+      - 3001
+
+  app:
+    image: $LOCAL_IMAGE_ID
+    environment:
+      SERVICE_PUBLISH: '/node'
+      SERVER_PORT: 3000
+      REDIS_URI: 'redis://redis'
+      API_KEYS: '?name=devClient&apiKey=1234&scope=write&scope=read'
+      NODE_API_URI: 'http://mock-api:3001/api/node'
+      NODE_API_KEY: '1234'
+      CM_HOST_URL: 'http://mock-api:3001/cm'
+
+      WAIT_HOSTS: 'redis:6379,mock-api:3001'
+      WAIT_BEFORE: 10
+      WAIT_TIMEOUT: 300
+      WAIT_AFTER: 5
+      APPINSIGHTS_INSTRUMENTATIONKEY: '1234'
+      SESSION_USE_REDIS: 'false'
+      SESSION_KEY: 'node-web.sid'
+      SESSION_SECRET: '1234567890'
+      SESSION_SECURE_COOKIE: 'false'
+      OIDC_APPLICATION_ID: 'foo'
+      OIDC_CLIENT_SECRET: 'bar'
+      OIDC_TOKEN_SECRET: 'tokenSecretString'
+      OIDC_CONFIGURATION_URL: http://mock-api:3001/oidc/.well-known/openid-configuration
+      OIDC_CALLBACK_URL: http://app:3000/node/auth/login/callback
+      OIDC_CALLBACK_SILENT_URL: http://app:3000/node/auth/silent/callback
+      OIDC_CALLBACK_LOGOUT_URL: http://app:3000/node/auth/logout/callback
+      LOG_LEVEL: 'debug'
+
+    ports:
+      - 3000
+    depends_on:
+      - redis
+      - mock-api
+
+  integration-tests:
+    build: ./test/integration
+    environment:
+      INTEGRATION_TEST_BASEURL: 'http://app:3000/node'
+      INTEGRATION_TEST_SUCCESS_DELAY: '${SUCCESS_DELAY:-0}'
+      INTEGRATION_TEST_FAILURE_DELAY: '${FAILURE_DELAY:-0}'
+      WAIT_HOSTS: 'app:3000'
+      WAIT_TIMEOUT: 40
+      WAIT_BEFORE: 5
+      WAIT_AFTER: 5
+    depends_on:
+      - app

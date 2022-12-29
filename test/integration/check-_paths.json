@@ -1,0 +1,4 @@
+{
+  "expectedSingleResponses": [{ "method": "GET", "uri": "/node/silent", "statusCode": 200 }],
+  "expectedDefaultResponseCodes": [302, 301]
+}
