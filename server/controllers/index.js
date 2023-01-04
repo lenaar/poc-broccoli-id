@@ -9,4 +9,5 @@ module.exports = {
   System: require('./systemCtrl'),
   Sample: require('./sampleCtrl'),
   Admin: require('./adminCtrl'),
+  BankId: require('./bankIdCtrl'),
 }
