@@ -40,26 +40,26 @@ module.exports = {
 
   // API keys
   apiKey: {
-    nodeApi: getEnv('NODE_API_KEY', devDefaults('1234')),
+    // nodeApi: getEnv('NODE_API_KEY', devDefaults('1234')),
   },
 
   // Authentication
   auth: {
     adminGroup: 'app.node.admin',
   },
-  oidc: {
-    configurationUrl: getEnv('OIDC_CONFIGURATION_URL', devDefaults(devOidcConfigurationURL)),
-    clientId: getEnv('OIDC_APPLICATION_ID', null),
-    clientSecret: getEnv('OIDC_CLIENT_SECRET', null),
-    tokenSecret: getEnv('OIDC_TOKEN_SECRET', devDefaults(devOidcTokenSecret)),
-    callbackLoginUrl: getEnv('OIDC_CALLBACK_URL', devDefaults(devOidcCallbackURL)),
-    callbackSilentLoginUrl: getEnv('OIDC_CALLBACK_SILENT_URL', devDefaults(devOidcCallbackSilentURL)),
-    callbackLogoutUrl: getEnv('OIDC_CALLBACK_LOGOUT_URL', devDefaults(devOidcLogoutCallbackURL)),
-  },
+  // oidc: {
+  //   configurationUrl: getEnv('OIDC_CONFIGURATION_URL', devDefaults(devOidcConfigurationURL)),
+  //   clientId: getEnv('OIDC_APPLICATION_ID', null),
+  //   clientSecret: getEnv('OIDC_CLIENT_SECRET', null),
+  //   tokenSecret: getEnv('OIDC_TOKEN_SECRET', devDefaults(devOidcTokenSecret)),
+  //   callbackLoginUrl: getEnv('OIDC_CALLBACK_URL', devDefaults(devOidcCallbackURL)),
+  //   callbackSilentLoginUrl: getEnv('OIDC_CALLBACK_SILENT_URL', devDefaults(devOidcCallbackSilentURL)),
+  //   callbackLogoutUrl: getEnv('OIDC_CALLBACK_LOGOUT_URL', devDefaults(devOidcLogoutCallbackURL)),
+  // },
 
   // Service API's
   nodeApi: {
-    nodeApi: unpackNodeApiConfig('NODE_API_URI', devNodeApi),
+    // nodeApi: unpackNodeApiConfig('NODE_API_URI', devNodeApi),
   },
 
   // Cortina
