@@ -174,26 +174,26 @@ passport.deserializeUser((user, done) => {
   }
 })
 
-const { OpenIDConnect, hasGroup } = require('@kth/kth-node-passport-oidc')
+// const { OpenIDConnect, hasGroup } = require('@kth/kth-node-passport-oidc')
 
-const oidc = new OpenIDConnect(server, passport, {
-  ...config.oidc,
-  callbackLoginRoute: _addProxy('/auth/login/callback'),
-  callbackLogoutRoute: _addProxy('/auth/logout/callback'),
-  callbackSilentLoginRoute: _addProxy('/auth/silent/callback'),
-  defaultRedirect: _addProxy(''),
-  // eslint-disable-next-line no-unused-vars
-  extendUser: (user, claims) => {
-    // eslint-disable-next-line no-param-reassign
-    user.isAdmin = hasGroup(config.auth.adminGroup, user)
-  },
-})
+// const oidc = new OpenIDConnect(server, passport, {
+//   ...config.oidc,
+//   callbackLoginRoute: _addProxy('/auth/login/callback'),
+//   callbackLogoutRoute: _addProxy('/auth/logout/callback'),
+//   callbackSilentLoginRoute: _addProxy('/auth/silent/callback'),
+//   defaultRedirect: _addProxy(''),
+//   // eslint-disable-next-line no-unused-vars
+//   extendUser: (user, claims) => {
+//     // eslint-disable-next-line no-param-reassign
+//     user.isAdmin = hasGroup(config.auth.adminGroup, user)
+//   },
+// })
 
-// eslint-disable-next-line no-unused-vars
-server.get(_addProxy('/login'), oidc.login, (req, res, next) => res.redirect(_addProxy('')))
+// // eslint-disable-next-line no-unused-vars
+// server.get(_addProxy('/login'), oidc.login, (req, res, next) => res.redirect(_addProxy('')))
 
-// eslint-disable-next-line no-unused-vars
-server.get(_addProxy('/logout'), oidc.logout)
+// // eslint-disable-next-line no-unused-vars
+// server.get(_addProxy('/logout'), oidc.logout)
 
 /* ********************************
  * ******* CRAWLER REDIRECT *******
@@ -241,15 +241,15 @@ server.use(
  * ******* APPLICATION ROUTES *******
  * **********************************
  */
-const { Sample, Admin } = require('./controllers')
+const { Sample, BankId } = require('./controllers')
 
 // App routes
 const appRoute = AppRouter()
 appRoute.get('node.index', _addProxy('/'), Sample.getIndex)
-appRoute.get('node.index', _addProxy('/_admin'), oidc.login, oidc.requireRole('isAdmin'), Admin.getAdminIndex)
-appRoute.get('node.index', _addProxy('/secure'), oidc.login, Sample.getIndex)
-appRoute.get('system.gateway', _addProxy('/silent'), oidc.silentLogin, Sample.getIndex)
-appRoute.get('node.page', _addProxy('/:page'), oidc.login, Sample.getIndex)
+appRoute.get('backend.qrCode', _addProxy('/backend/qrcode'), Sample.getQrCode)
+appRoute.get('backend.auth', _addProxy('/backend/auth/:prn'), BankId.authBroccolliId)
+appRoute.get('backend.collect', _addProxy('/backend/collect/:orderRef'), BankId.collectBroccolliId)
+
 server.use('/', appRoute.getRouter())
 
 // Not found etc
