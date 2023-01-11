@@ -3,41 +3,38 @@ import React from 'react'
 import Button from '../components/Button'
 import Results from '../components/Results'
 import { useWebContext } from '../context/WebContext'
+import QRCode from 'react-qr-code'
 
 import { STATUS, ERROR_ASYNC, useQrCodeAsync } from '../hooks/qrCodeUseAsync'
-import { useAuthAsync } from '../hooks/authUseAsync'
+import { useQRAuthAsync } from '../hooks/authUseAsync'
 import { useCollectAsync } from '../hooks/collectUseAsync'
 
-function QrCodeResults({ responseStatus, error = {}, data }) {
-  const [prn, setPrm] = React.useState('')
-
-  const { data: authData, status: authStatus, error: authError } = useAuthAsync({ prn }, 'onChange')
-  const { message: authMessage = '', orderRef = '' } = authData || {}
+function QrCodeResults({ authStatus, authError = {}, authData }) {
+  // const { data: authData, status: authStatus, error: authError } = useQRAuthAsync({ showQR }, 'onChange')
+  const { message: authMessage = '', orderRef = '', qrCodeStr = '' } = authData || {}
 
   const { data: collectData, status: collectStatus, error: collectError } = useCollectAsync({ orderRef }, 'onChange')
-  console.log('prn', prn)
-  console.log('authData', authData)
-  console.log('authStatus', authStatus)
-  console.log('authError', authError)
 
   console.log('collectData', collectData)
   console.log('collectStatus', collectStatus)
   console.log('collectError', collectError)
 
   return (
-    <Results responseStatus={responseStatus} error={error}>
+    <Results responseStatus={authStatus} error={authError}>
       <h3>Visa resultat</h3>
-      {responseStatus === 'resolved' && (
+      {authStatus === 'resolved' && (
         <>
-          <p>{data.qrCode}</p>
-          <input type="text" value={prn} name="personal-number" onChange={e => setPrm(e.target.value)} />
-          {authStatus === 'resolved' && (
-            <>
-              <p>{authMessage}</p>
-              <p>OrderRef: {orderRef}</p>
-            </>
-          )}
-
+          <p>{authMessage}</p>
+          <p>OrderRef: {orderRef}</p>
+          <p>qrCodeStr: {qrCodeStr}</p>
+          <div style={{ height: 'auto', margin: '0 auto', maxWidth: 300, width: '100%' }}>
+            <QRCode
+              size={256}
+              style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+              value={qrCodeStr}
+              viewBox={`0 0 256 256`}
+            />
+          </div>
           {collectStatus === 'resolved' && (
             <>
               <h3>Collection data is finished</h3>
@@ -53,11 +50,14 @@ function QrCodeResults({ responseStatus, error = {}, data }) {
 }
 
 function QrCodeArea({ showQR }) {
-  const state = useQrCodeAsync({ showQR }, 'onChange')
-  console.log('state in QrCodeArea', state)
+  const { data: authData, status: authStatus, error: authError } = useQRAuthAsync({ showQR }, 'onChange')
+  // const { message: authMessage = '', orderRef = '' } = authData || {}
 
-  const { data, status: responseStatus, error = {} } = state || {}
-  return <QrCodeResults responseStatus={responseStatus} error={error} data={data} />
+  console.log('authData', authData)
+  console.log('authStatus', authStatus)
+  console.log('authError', authError)
+
+  return <QrCodeResults authStatus={authStatus} authError={authError} authData={authData} />
 }
 
 const Start = () => {
