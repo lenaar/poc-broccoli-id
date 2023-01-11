@@ -227,15 +227,15 @@ server.use('/', systemRoute.getRouter())
  * ******* CORTINA BLOCKS *******
  * ******************************
  */
-server.use(
-  config.proxyPrefixPath.uri,
-  require('@kth/kth-node-web-common/lib/web/cortina')({
-    blockUrl: config.blockApi.blockUrl,
-    proxyPrefixPath: config.proxyPrefixPath.uri,
-    hostUrl: config.hostUrl,
-    redisConfig: config.cache.cortinaBlock.redis,
-  })
-)
+// server.use(
+//   config.proxyPrefixPath.uri,
+//   require('@kth/kth-node-web-common/lib/web/cortina')({
+//     blockUrl: config.blockApi.blockUrl,
+//     proxyPrefixPath: config.proxyPrefixPath.uri,
+//     hostUrl: config.hostUrl,
+//     redisConfig: config.cache.cortinaBlock.redis,
+//   })
+// )
 
 /* **********************************
  * ******* APPLICATION ROUTES *******
