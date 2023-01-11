@@ -53,8 +53,7 @@ async function authBroccolliId(req, res, next) {
     bankIdApiUrl + '/auth',
     JSON.stringify({
       // personalNumber: params.pnr, // req.query.pnr
-      endUserIp: '192.168.1.217',
-      // endUserIp: '10.56.40.158', // TODO: must be client ip as seen been by RP
+      endUserIp: '10.56.40.158', // TODO: must be client ip as seen been by RP
     })
   )
   const orderTime = new Date()
