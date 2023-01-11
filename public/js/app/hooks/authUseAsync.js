@@ -125,4 +125,39 @@ function useAuthAsync(chosenOptions, loadType = 'onChange') {
   return state
 }
 
-export { STATUS, ERROR_ASYNC, useAsync, useAuthAsync }
+function useQRAuthAsync(chosenOptions, loadType = 'onChange') {
+  const [{ proxyPrefixPath, language, languageIndex }] = useWebContext()
+  const { showQR } = chosenOptions
+  const dependenciesList = loadType === 'onChange' ? [showQR] : []
+  const asyncCallback = React.useCallback(() => {
+    if (!showQR) return
+
+    const proxyUrl = _getThisHost(proxyPrefixPath.uri)
+    console.log('proxyUrl', proxyUrl)
+
+    // eslint-disable-next-line consistent-return
+    return auth(language, proxyUrl, chosenOptions)
+  }, [...dependenciesList])
+
+  const initialStatus = { status: STATUS.idle }
+
+  const state = useAsync(asyncCallback, initialStatus)
+
+  const { status: responseStatus, error = {} } = state || {}
+  const { errorType = '' } = error
+
+  useEffect(() => {
+    let isMounted = true
+    if (isMounted) {
+      if (errorType && errorType !== null) {
+        console.log('Alert ', error, languageIndex)
+        // renderAlertToTop(error, languageIndex)
+      } else dismountTopAlert()
+    }
+    return () => (isMounted = false)
+  }, [responseStatus])
+
+  return state
+}
+
+export { STATUS, ERROR_ASYNC, useAsync, useAuthAsync, useQRAuthAsync }
