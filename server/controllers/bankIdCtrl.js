@@ -53,11 +53,11 @@ async function authBroccolliId(req, res, next) {
     bankIdApiUrl + '/auth',
     JSON.stringify({
       // personalNumber: params.pnr, // req.query.pnr
-      endUserIp: '10.56.40.158', // TODO: must be client ip as seen been by RP
+      endUserIp: '192.168.1.217', // TODO: must be client ip as seen been by RP
     })
   )
   const orderTime = new Date()
-  const { qrStartToken, qrStartSecret } = data
+  const { autoStartToken, qrStartToken, qrStartSecret } = data
   QR_START_SECRET_CACHE = qrStartSecret
   ORDER_TIME = orderTime
   const { qrCodeStr } = generateQrCode(data, orderTime)
@@ -70,6 +70,7 @@ async function authBroccolliId(req, res, next) {
   log.info('auth initiated, please open bankid to authenticate ', { orderRef: data.orderRef })
 
   res.json({
+    autoStartToken, // to open in the same device
     message: 'auth initiated, please open bankid to authenticate ',
     orderRef: data.orderRef,
     orderTime,
