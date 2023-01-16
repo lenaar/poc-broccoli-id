@@ -91,11 +91,10 @@ function _getThisHost(thisHostBaseUrl) {
 
 function useAuthAsync(chosenOptions, loadType = 'onChange') {
   const [{ proxyPrefixPath, language, languageIndex }] = useWebContext()
-  const { prn } = chosenOptions
-  const dependenciesList = loadType === 'onChange' ? [prn] : []
+  const { isActivated } = chosenOptions
+  const dependenciesList = loadType === 'onChange' ? [isActivated] : []
   const asyncCallback = React.useCallback(() => {
-    console.log('prn', prn)
-    if (!prn && prn.length < 10) return
+    if (!isActivated) return
 
     const proxyUrl = _getThisHost(proxyPrefixPath.uri)
     console.log('proxyUrl', proxyUrl)
@@ -125,6 +124,7 @@ function useAuthAsync(chosenOptions, loadType = 'onChange') {
   return state
 }
 
+// TODO: maybe move to a more general hook
 function useQRAuthAsync(chosenOptions, loadType = 'onChange') {
   const [{ proxyPrefixPath, language, languageIndex }] = useWebContext()
   const { showQR } = chosenOptions
