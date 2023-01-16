@@ -1,4 +1,5 @@
 /* eslint-disable import/order */
+// const setupWebSocket = require('./ws')
 
 // Now read the server config etc.
 const config = require('./configuration').server
@@ -19,6 +20,7 @@ const logConfiguration = {
 log.init(logConfiguration)
 
 const server = require('@kth/server')
+// setupWebSocket(server)
 
 require('./api')
 const AppRouter = require('kth-node-express-routing').PageRouter
@@ -256,5 +258,10 @@ server.use('/', appRoute.getRouter())
 server.use(System.notFound)
 server.use(System.final)
 
+// pass the same server to our websocket setup function
+// the websocket server will the run on the same port
+// accepting ws:// connections
+
 // Register handlebar helpers
+
 require('./views/helpers')
