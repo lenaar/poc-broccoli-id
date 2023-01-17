@@ -247,7 +247,6 @@ const { Sample, BankId } = require('./controllers')
 const appRoute = AppRouter()
 appRoute.get('node.index', _addProxy('/'), Sample.getIndex)
 
-appRoute.get('backend.qrCode', _addProxy('/backend/qrcode'), Sample.getQrCode)
 appRoute.get('backend.auth', _addProxy('/backend/auth/:method'), BankId.authBroccolliId)
 appRoute.get('backend.collect', _addProxy('/backend/collect/:orderRef'), BankId.collectBroccolliId)
 
