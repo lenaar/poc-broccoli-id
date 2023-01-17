@@ -4,6 +4,8 @@ const https = require('https')
 const fs = require('fs')
 const path = require('path')
 const log = require('@kth/log')
+const setupWebSocket = require('../wsSetup')
+const server = require('../server')
 
 const bankIdApiUrl = 'https://appapi2.test.bankid.com/rp/v5.1'
 // QR CODES https://appapi2.bankid.com/rp/v5.1
@@ -32,35 +34,25 @@ function getBrocolliIdAgent() {
   }
 }
 
-let QR_START_SECRET_CACHE = ''
-let ORDER_TIME = ''
-
-function generateQrCode(authData, orderTime = ORDER_TIME) {
-  const { qrStartToken, qrStartSecret = QR_START_SECRET_CACHE, orderRef = '' } = authData || {}
-  const qrTime = new Date()
-  const qrTimeSeconds = new Date(qrTime - orderTime).getSeconds()
-  const qrAuthCode = crypto.createHmac('sha256', qrStartSecret).update(qrTimeSeconds.toString()).digest('hex')
-  const qrCodeStr = `bankid.${qrStartToken}.${qrTimeSeconds}.${qrAuthCode}`
-  return { qrCodeStr, qrAuthCode, qrTimeSeconds }
-}
-
 async function authBroccolliId(req, res, next) {
   const { params, query } = req
+  const { method } = params
   log.info(` trying to auth order `, { params, query })
   log.info(' connection remote addres', req.connection.remoteAddress)
   // data.data.orderRef
   const { data } = await axios.create(getBrocolliIdAgent()).post(
     bankIdApiUrl + '/auth',
     JSON.stringify({
-      // personalNumber: params.pnr, // req.query.pnr
       endUserIp: '192.168.1.217', // TODO: must be client ip as seen been by RP
     })
   )
   const orderTime = new Date()
   const { autoStartToken, qrStartToken, qrStartSecret } = data
+
   QR_START_SECRET_CACHE = qrStartSecret
   ORDER_TIME = orderTime
-  const { qrCodeStr } = generateQrCode(data, orderTime)
+  if (method === 'qrcode') setupWebSocket(server, data, orderTime)
+
   // qrStartSecret must not be sent to the client
   // bankid is a fixed prefix.
   // qrStartToken is from the auth or sign response.
@@ -75,8 +67,7 @@ async function authBroccolliId(req, res, next) {
     orderRef: data.orderRef,
     orderTime,
     qrStartToken,
-    qrCodeStr,
-  }) // orderRef
+  })
 }
 
 function timeout(ms) {

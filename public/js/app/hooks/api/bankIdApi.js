@@ -31,10 +31,10 @@ async function apiCall(url, language, proxyUrl, params) {
 
 async function auth(language, proxyUrl, params) {
   try {
-    const { prn } = params
-    console.log('trying to authenticate to backend to prn', prn)
+    const { method } = params
+    console.log('trying to authenticate to backend by method', method)
 
-    const url = `${proxyUrl}/backend/auth/${prn}`
+    const url = `${proxyUrl}/backend/auth/${method}`
     return await apiCall(url, language, proxyUrl, params)
   } catch (error) {
     if (error.response) {

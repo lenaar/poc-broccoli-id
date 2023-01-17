@@ -60,21 +60,6 @@ async function getIndex(req, res, next) {
   }
 }
 
-async function getQrCode(req, res, next) {
-  const { params, query } = req
-  log.info(` trying to fetch qr code `, { params, query })
-
-  try {
-    // const data = await _getQR()
-
-    return res.json({ qrCode: 'Hello, I am an qrCode' })
-  } catch (error) {
-    log.debug(` Exception`, { error })
-    next(error)
-  }
-}
-
 module.exports = {
   getIndex,
-  getQrCode,
 }

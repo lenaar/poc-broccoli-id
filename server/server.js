@@ -246,8 +246,8 @@ const { Sample, BankId } = require('./controllers')
 // App routes
 const appRoute = AppRouter()
 appRoute.get('node.index', _addProxy('/'), Sample.getIndex)
-appRoute.get('backend.qrCode', _addProxy('/backend/qrcode'), Sample.getQrCode)
-appRoute.get('backend.auth', _addProxy('/backend/auth/:prn'), BankId.authBroccolliId)
+
+appRoute.get('backend.auth', _addProxy('/backend/auth/:method'), BankId.authBroccolliId)
 appRoute.get('backend.collect', _addProxy('/backend/collect/:orderRef'), BankId.collectBroccolliId)
 
 server.use('/', appRoute.getRouter())
@@ -257,4 +257,5 @@ server.use(System.notFound)
 server.use(System.final)
 
 // Register handlebar helpers
+
 require('./views/helpers')
