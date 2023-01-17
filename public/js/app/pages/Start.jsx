@@ -8,12 +8,45 @@ import { useWebContext } from '../context/WebContext'
 import { STATUS, ERROR_ASYNC, useQrCodeAsync } from '../hooks/qrCodeUseAsync'
 import { useAuthAsync, useQRAuthAsync } from '../hooks/authUseAsync'
 import { useCollectAsync } from '../hooks/collectUseAsync'
-// import { useWebSocketLite } from '../hooks/wsHook'
+import { useWebSocketLite } from '../hooks/wsHook.js'
+
+function DynamicQRCode({ orderRef, collectStatus }) {
+  const ws = useWebSocketLite({
+    socketUrl: 'ws://localhost:8080/node',
+  })
+
+  function sendData() {
+    // to resolve and clean ws interval on server side
+    ws.send({ collectStatus, orderRef })
+  }
+
+  const { data: wsdata = {} } = ws || {}
+  const { nextQRCodeStr = '' } = wsdata.message || {}
+
+  React.useEffect(() => {
+    // send collect status
+    sendData()
+    if (collectStatus === 'resolved') ws.send('close')
+  }, [collectStatus])
+
+  // if (collectStatus === 'resolved') return null
+
+  return (
+    <>
+      <div style={{ height: 'auto', margin: '0 auto', maxWidth: 300, width: '100%' }}>
+        <QRCode
+          size={256}
+          style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+          value={nextQRCodeStr} // || qrCodeStr
+          viewBox={`0 0 256 256`}
+        />
+      </div>
+    </>
+  )
+}
 
 function QrCodeResults({ authStatus, authError = {}, authData }) {
-  // const { data: authData, status: authStatus, error: authError } = useQRAuthAsync({ showQR }, 'onChange')
-  const { message: authMessage = '', orderRef = '', qrCodeStr = '' } = authData || {}
-  // useWebSocketLite
+  const { message: authMessage = '', orderRef = '' } = authData || {}
   const { data: collectData, status: collectStatus, error: collectError } = useCollectAsync({ orderRef }, 'onChange')
 
   console.log('collectData', collectData)
@@ -27,15 +60,8 @@ function QrCodeResults({ authStatus, authError = {}, authData }) {
         <>
           <p>{authMessage}</p>
           <p>OrderRef: {orderRef}</p>
-          <p>qrCodeStr: {qrCodeStr}</p>
-          <div style={{ height: 'auto', margin: '0 auto', maxWidth: 300, width: '100%' }}>
-            <QRCode
-              size={256}
-              style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
-              value={qrCodeStr}
-              viewBox={`0 0 256 256`}
-            />
-          </div>
+
+          <DynamicQRCode orderRef={orderRef} collectStatus={collectStatus} />
           {collectStatus === 'resolved' && (
             <>
               <h3>Collection data is finished</h3>
@@ -51,8 +77,11 @@ function QrCodeResults({ authStatus, authError = {}, authData }) {
 }
 
 function QrCodeArea({ showQR }) {
-  const { data: authData, status: authStatus, error: authError } = useQRAuthAsync({ showQR }, 'onChange')
-  // const { message: authMessage = '', orderRef = '' } = authData || {}
+  const {
+    data: authData,
+    status: authStatus,
+    error: authError,
+  } = useQRAuthAsync({ showQR, method: 'qrcode' }, 'onChange')
 
   console.log('authData', authData)
   console.log('authStatus', authStatus)
@@ -63,7 +92,6 @@ function QrCodeArea({ showQR }) {
 
 function SameDeviceResults({ authStatus, authError = {}, authData }) {
   const { message: authMessage = '', orderRef = '', autoStartToken = '' } = authData || {}
-  // useWebSocketLite
   const { data: collectData, status: collectStatus, error: collectError } = useCollectAsync({ orderRef }, 'onChange')
 
   console.log('collectData', collectData)
@@ -100,7 +128,7 @@ function SameDeviceArea({ showSameDevice }) {
     data: authData,
     status: authStatus,
     error: authError,
-  } = useAuthAsync({ isActivated: showSameDevice }, 'onChange')
+  } = useAuthAsync({ isActivated: showSameDevice, method: 'autostart' }, 'onChange')
   // const { message: authMessage = '', orderRef = '' } = authData || {}
 
   console.log('authData', authData)
