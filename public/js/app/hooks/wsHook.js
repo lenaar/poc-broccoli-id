@@ -24,8 +24,10 @@ function useWebSocketLite({ socketUrl, retry: defaultRetry = 3, retryInterval = 
       // function to send messages
       setSend(() => data => {
         try {
+          const { collectStatus } = data
           const d = JSON.stringify(data)
           ws.send(d)
+          if (collectStatus === 'resolved') ws.close()
           return true
         } catch (err) {
           return false
