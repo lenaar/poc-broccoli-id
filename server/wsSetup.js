@@ -1,11 +1,11 @@
 const WebSocket = require('ws')
 const log = require('@kth/log')
-const individualPipeline = require('./wsqrcode')
+const individualQRcodePipeline = require('./wsqrcode')
 // accepts an http server (covered later)
-function setupWebSocket(server) {
+function setupWebSocket(server, authData = {}, orderTime) {
   // ws instance
-  const wss = new WebSocket.Server({ noServer: true })
-
+  log.info('Start setting up a web socket on server', setupWebSocket)
+  const wss = new WebSocket.WebSocketServer({ port: 8080 })
   // handle upgrade of the request
   server.on('upgrade', (request, socket, head) => {
     try {
@@ -31,11 +31,19 @@ function setupWebSocket(server) {
     // handle message events
     // receive a message and echo it back
     ctx.on('message', message => {
-      log.info(`Received message => ${message}`)
-      ctx.send(`you said ${message}`)
+      const messageStr = message.toString()
+      const messageBody = JSON.parse(messageStr)
+      const { collectStatus } = messageBody || {}
+      log.info(`Received message `, { message: message.toString() })
+      ctx.send(`you said smth`) // ${message}
+      if (collectStatus === 'resolved') {
+        log.info('Auth is collected, closing web socket on server side')
+        wss.close()
+      }
     })
 
-    const interval = individualPipeline(ctx)
+    const interval = individualQRcodePipeline(ctx, authData, orderTime)
+    log.info('started interval', interval)
 
     // handle close event
     ctx.on('close', () => {
@@ -48,16 +56,4 @@ function setupWebSocket(server) {
   })
 }
 
-// const wss = new WebSocket.Server({ port: 3000 })
-
-// wss.on('connection', function connection(ws) {
-//   ws.on('message', function incoming(data) {
-//     wss.clients.forEach(function each(client) {
-//       if (client !== ws && client.readyState === WebSocket.OPEN) {
-//         client.send(data)
-//         // console.log('data', data);
-//       }
-//     })
-//   })
-// })
 module.exports = setupWebSocket
