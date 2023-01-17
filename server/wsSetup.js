@@ -1,7 +1,7 @@
 const WebSocket = require('ws')
 const log = require('@kth/log')
-const individualQRcodePipeline = require('./wsqrcode')
-// accepts an http server (covered later)
+const individualQRcodePipeline = require('./wsQRcode')
+
 function setupWebSocket(server, authData = {}, orderTime) {
   // ws instance
   log.info('Start setting up a web socket on server', setupWebSocket)
@@ -35,7 +35,7 @@ function setupWebSocket(server, authData = {}, orderTime) {
       const messageBody = JSON.parse(messageStr)
       const { collectStatus } = messageBody || {}
       log.info(`Received message `, { message: message.toString() })
-      ctx.send(`you said smth`) // ${message}
+      ctx.send(`Message is received`)
       if (collectStatus === 'resolved') {
         log.info('Auth is collected, closing web socket on server side')
         wss.close()
@@ -45,13 +45,11 @@ function setupWebSocket(server, authData = {}, orderTime) {
     const interval = individualQRcodePipeline(ctx, authData, orderTime)
     log.info('started interval', interval)
 
-    // handle close event
     ctx.on('close', () => {
       log.info('closed', wss.clients.size)
       clearInterval(interval)
     })
 
-    // sent a message that we're good to proceed
     ctx.send('connection established.')
   })
 }

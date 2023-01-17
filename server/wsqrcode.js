@@ -1,10 +1,27 @@
-function individualPipeline(ctx) {
-  let idx = 0
-  const interval = setInterval(() => {
-    ctx.send(`ping pong ${idx}`)
-    idx++
-  }, 5000)
-  return interval
+const crypto = require('crypto')
+const log = require('@kth/log')
+
+function generateQrCode(authData, orderTime = '') {
+  const { qrStartToken, qrStartSecret = '' } = authData || {}
+  const qrTime = new Date()
+  const qrTimeSeconds = new Date(qrTime - orderTime).getSeconds()
+  const qrAuthCode = crypto.createHmac('sha256', qrStartSecret).update(qrTimeSeconds.toString()).digest('hex')
+  const qrCodeStr = `bankid.${qrStartToken}.${qrTimeSeconds}.${qrAuthCode}`
+  return { qrCodeStr, qrAuthCode, qrTimeSeconds }
 }
 
-module.exports = individualPipeline
+function individualQRcodePipeline(ctx, authData, orderTime) {
+  let idx = 0
+  log.info('----->individualQRcodePipeline', { orderTime, idx })
+
+  const intervalId = setInterval(() => {
+    const { qrCodeStr } = generateQrCode(authData, orderTime)
+
+    log.info('-----> start webscoket interval', { nextQRCodeStr: qrCodeStr, idx })
+    ctx.send(JSON.stringify({ nextQRCodeStr: qrCodeStr, idx }))
+    idx++
+  }, 1000)
+  return intervalId
+}
+
+module.exports = individualQRcodePipeline
