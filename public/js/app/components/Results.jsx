@@ -3,7 +3,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import i18n from '../../../../i18n'
-import { STATUS, ERROR_ASYNC } from '../hooks/qrCodeUseAsync'
+import { STATUS, ERROR_ASYNC } from '../hooks/authUseAsync'
 
 import { useWebContext } from '../context/WebContext'
 

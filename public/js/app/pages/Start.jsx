@@ -5,7 +5,6 @@ import Button from '../components/Button'
 import Results from '../components/Results'
 import { useWebContext } from '../context/WebContext'
 
-import { STATUS, ERROR_ASYNC, useQrCodeAsync } from '../hooks/qrCodeUseAsync'
 import { useAuthAsync, useQRAuthAsync } from '../hooks/authUseAsync'
 import { useCollectAsync } from '../hooks/collectUseAsync'
 import { useWebSocketLite } from '../hooks/wsHook.js'
