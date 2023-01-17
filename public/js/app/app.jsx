@@ -1,5 +1,6 @@
 /* eslint no-use-before-define: ["error", "nofunc"] */
 import { hydrateRoot } from 'react-dom/client'
+import { ErrorBoundary } from 'react-error-boundary'
 
 // @ts-check
 
@@ -8,13 +9,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import { WebContextProvider } from './context/WebContext'
 import { uncompressData } from './context/compress'
-import { AdminContextProvider } from './context/AdminContext'
-import { ErrorBoundary } from 'react-error-boundary'
 
 import '../../css/node-web.scss'
-
 import Start from './pages/Start'
-import AdminStart from './pages/AdminStart'
 import Simple from './pages/Simple'
 
 export default appFactory
