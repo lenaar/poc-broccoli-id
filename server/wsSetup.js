@@ -1,6 +1,6 @@
 const WebSocket = require('ws')
 const log = require('@kth/log')
-const individualQRcodePipeline = require('./wsQRcode')
+const individualQRcodePipeline = require('./wsqrcode')
 
 function setupWebSocket(server, authData = {}, orderTime) {
   // ws instance
