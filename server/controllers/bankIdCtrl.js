@@ -1,5 +1,4 @@
 const axios = require('axios')
-const crypto = require('crypto')
 const https = require('https')
 const fs = require('fs')
 const path = require('path')
@@ -75,6 +74,12 @@ async function sleep(fn, ...args) {
   await timeout(2000)
   return await fn(...args)
 }
+const TRANSACTIONS_ERRORS = ['cancelled', 'certificateErr', 'expiredTransaction', 'startFailed', 'userCancel']
+// 'expiredTransaction' && // msg RFA8
+// 'certificateErr' && // msg RFA16
+// 'userCancel' && // msg RFA6
+// 'cancelled' && // msg RFA3
+// 'startFailed'
 
 const callCollect = async orderRef => {
   // Extract data
@@ -87,13 +92,7 @@ const callCollect = async orderRef => {
   // data = await data.json()
   log.info('call collected data', { data })
   if (data.hintCode) {
-    if (
-      data.hintCode != 'expiredTransaction' && // msg RFA8
-      data.hintCode != 'certificateErr' && // msg RFA16
-      data.hintCode != 'userCancel' && // msg RFA6
-      data.hintCode != 'cancelled' && // msg RFA3
-      data.hintCode != 'startFailed'
-    ) {
+    if (!TRANSACTIONS_ERRORS.includes(data.hintCode)) {
       // msg RFA17
       log.info('set timeout')
       return await sleep(callCollect, orderRef)
