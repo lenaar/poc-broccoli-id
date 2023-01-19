@@ -47,10 +47,8 @@ async function authBroccolliId(req, res, next) {
     })
   )
   const orderTime = new Date()
-  const { autoStartToken, qrStartToken, qrStartSecret } = data
+  const { autoStartToken, qrStartToken } = data
 
-  QR_START_SECRET_CACHE = qrStartSecret
-  ORDER_TIME = orderTime
   if (method === 'qrcode') setupWebSocket(server, data, orderTime)
 
   // qrStartSecret must not be sent to the client
