@@ -44,6 +44,36 @@ async function auth(language, proxyUrl, params) {
   }
 }
 
+async function sign(language, proxyUrl, params) {
+  try {
+    const { method } = params
+    console.log('trying to sign to backend by method', method)
+
+    const url = `${proxyUrl}/backend/sign/${method}`
+    return await apiCall(url, language, proxyUrl, params)
+  } catch (error) {
+    if (error.response) {
+      throw new Error('Unexpected error from sign-' + error.message)
+    }
+    throw error
+  }
+}
+
+async function signByPersonalNumber(language, proxyUrl, params) {
+  try {
+    const { personalNumber } = params
+    console.log('trying to sign to backend by personal number', personalNumber)
+
+    const url = `${proxyUrl}/backend/signByPersonalNumber/${personalNumber}`
+    return await apiCall(url, language, proxyUrl, params)
+  } catch (error) {
+    if (error.response) {
+      throw new Error('Unexpected error from signByPersonalNumber-' + error.message)
+    }
+    throw error
+  }
+}
+
 async function collect(language, proxyUrl, params) {
   try {
     const { orderRef } = params
@@ -58,4 +88,4 @@ async function collect(language, proxyUrl, params) {
   }
 }
 
-export { auth, collect }
+export { auth, collect, sign, signByPersonalNumber }

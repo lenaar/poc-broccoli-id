@@ -1,7 +1,7 @@
-const axios = require('axios')
 const https = require('https')
 const fs = require('fs')
 const path = require('path')
+const axios = require('axios')
 const log = require('@kth/log')
 const setupWebSocket = require('../wsSetup')
 const server = require('../server')
@@ -38,12 +38,11 @@ async function authBroccolliId(req, res, next) {
   const { params, query } = req
   const { method } = params
   log.info(` trying to auth order `, { params, query })
-  log.info(' connection remote addres', req.connection.remoteAddress)
   // data.data.orderRef
   const { data } = await axios.create(getBrocolliIdAgent()).post(
     bankIdApiUrl + '/auth',
     JSON.stringify({
-      endUserIp: serverConfig.externalIpAddressForBankId, // TODO: must be client ip as seen been by RP
+      endUserIp: serverConfig.externalIpAddressForBankId,
     })
   )
   const orderTime = new Date()
@@ -65,6 +64,63 @@ async function authBroccolliId(req, res, next) {
     orderRef: data.orderRef,
     orderTime,
     qrStartToken,
+  })
+}
+
+async function signBroccolliId(req, res, next) {
+  const { params, query } = req
+  const { method } = params
+  log.info(` trying to sign the order `, { params, query })
+  // data.data.orderRef
+  const { data } = await axios.create(getBrocolliIdAgent()).post(
+    bankIdApiUrl + '/sign',
+    JSON.stringify({
+      endUserIp: serverConfig.externalIpAddressForBankId,
+      userVisibleData: Buffer.from('Hej, dags att skriva under!').toString('base64'),
+    })
+  )
+  const orderTime = new Date()
+  const { autoStartToken, qrStartToken } = data
+
+  if (method === 'qrcode') setupWebSocket(server, data, orderTime)
+
+  // qrStartSecret must not be sent to the client
+  // bankid is a fixed prefix.
+  // qrStartToken is from the auth or sign response.
+  // time is the number of seconds since the result from auth or sign was returned.
+  // qrAuthCode is computed as HMACSHA256(qrStartSecret, time)
+  log.info('data', { data })
+  log.info('sign initiated, please open bankid to sign up ', { orderRef: data.orderRef })
+
+  res.json({
+    autoStartToken, // to open in the same device
+    message: 'sign initiated, please open bankid to sign up ',
+    orderRef: data.orderRef,
+    orderTime,
+    qrStartToken,
+  })
+}
+
+async function signByPersonalNumberBroccolliId(req, res, next) {
+  const { params, query } = req
+  const { personalNumber = '' } = params
+  log.info(` trying to sign the order `, { params, query })
+  // data.data.orderRef
+  const { data } = await axios.create(getBrocolliIdAgent()).post(
+    bankIdApiUrl + '/sign',
+    JSON.stringify({
+      personalNumber,
+      endUserIp: serverConfig.externalIpAddressForBankId,
+      userVisibleData: Buffer.from(`Hej ${personalNumber}, dags att skriva under!`).toString('base64'),
+    })
+  )
+
+  log.info('data', { data })
+  log.info('signByPersonalNumberBroccolliId initiated, please open bankid to sign up ', { orderRef: data.orderRef })
+
+  res.json({
+    message: `sign by personal number ${personalNumber} initiated, please open bankid to sign up `,
+    orderRef: data.orderRef,
   })
 }
 
@@ -122,4 +178,4 @@ async function collectBroccolliId(req, res, next) {
   })
 }
 
-module.exports = { authBroccolliId, collectBroccolliId }
+module.exports = { authBroccolliId, collectBroccolliId, signBroccolliId, signByPersonalNumberBroccolliId }

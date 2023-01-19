@@ -250,6 +250,11 @@ appRoute.get('node.index', _addProxy('/'), Sample.getIndex)
 appRoute.get('backend.auth', _addProxy('/backend/auth/:method'), BankId.authBroccolliId)
 appRoute.get('backend.collect', _addProxy('/backend/collect/:orderRef'), BankId.collectBroccolliId)
 appRoute.get('backend.sign', _addProxy('/backend/sign/:method'), BankId.signBroccolliId)
+appRoute.get(
+  'backend.signByPersonalNumber',
+  _addProxy('/backend/signByPersonalNumber/:personalNumber'),
+  BankId.signByPersonalNumberBroccolliId
+)
 
 server.use('/', appRoute.getRouter())
 
