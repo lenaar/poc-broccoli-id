@@ -102,4 +102,6 @@ module.exports = {
   toolbar: {
     url: getEnv('TOOLBAR_URL', devDefaults('https://www-r.referens.sys.kth.se/social/toolbar/widget.js')),
   },
+
+  externalIpAddressForBankId: getEnv('EXTERNAL_IP_ADDRESS_FOR_BANKD_ID', devDefaults('127.0.0.1')),
 }

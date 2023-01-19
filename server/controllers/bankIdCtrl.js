@@ -5,6 +5,7 @@ const path = require('path')
 const log = require('@kth/log')
 const setupWebSocket = require('../wsSetup')
 const server = require('../server')
+const serverConfig = require('../configuration').server
 
 const bankIdApiUrl = 'https://appapi2.test.bankid.com/rp/v5.1'
 // QR CODES https://appapi2.bankid.com/rp/v5.1
@@ -42,7 +43,7 @@ async function authBroccolliId(req, res, next) {
   const { data } = await axios.create(getBrocolliIdAgent()).post(
     bankIdApiUrl + '/auth',
     JSON.stringify({
-      endUserIp: '192.168.1.217', // TODO: must be client ip as seen been by RP
+      endUserIp: serverConfig.externalIpAddressForBankId, // TODO: must be client ip as seen been by RP
     })
   )
   const orderTime = new Date()
