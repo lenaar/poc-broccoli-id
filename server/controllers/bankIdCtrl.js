@@ -74,7 +74,7 @@ async function sleep(fn, ...args) {
   await timeout(2000)
   return await fn(...args)
 }
-const TRANSACTIONS_ERRORS = ['cancelled', 'certificateErr', 'expiredTransaction', 'startFailed', 'userCancel']
+const TRANSACTIONS_FAILS = ['cancelled', 'certificateErr', 'expiredTransaction', 'startFailed', 'userCancel']
 // 'expiredTransaction' && // msg RFA8
 // 'certificateErr' && // msg RFA16
 // 'userCancel' && // msg RFA6
@@ -92,7 +92,7 @@ const callCollect = async orderRef => {
   // data = await data.json()
   log.info('call collected data', { data })
   if (data.hintCode) {
-    if (!TRANSACTIONS_ERRORS.includes(data.hintCode)) {
+    if (!TRANSACTIONS_FAILS.includes(data.hintCode)) {
       // msg RFA17
       log.info('set timeout')
       return await sleep(callCollect, orderRef)
