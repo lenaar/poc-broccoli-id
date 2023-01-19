@@ -30,5 +30,7 @@ RUN npm pkg delete scripts.prepare && \
     npm prune --production 
 
 EXPOSE 3000
+EXPOSE 8080
+
 
 CMD ["npm", "start"]

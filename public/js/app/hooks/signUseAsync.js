@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import { useWebContext } from '../context/WebContext'
 // import { Alert } from '../components/alert'
-import fetchQrCode from './api/qrCodeApi'
+import { sign, signByPersonalNumber } from './api/bankIdApi'
 
 const STATUS = {
   idle: 'idle',
@@ -89,19 +89,18 @@ function _getThisHost(thisHostBaseUrl) {
   return thisHostBaseUrl.slice(-1) === '/' ? thisHostBaseUrl.slice(0, -1) : thisHostBaseUrl
 }
 
-function useQrCodeAsync(chosenOptions, loadType = 'onChange') {
+function useSignByPersonalNumberAsync(chosenOptions, loadType = 'onChange') {
   const [{ proxyPrefixPath, language, languageIndex }] = useWebContext()
-  const { showQR } = chosenOptions
-  const dependenciesList = loadType === 'onChange' ? [showQR] : []
+  const { isActivated, personalNumber } = chosenOptions
+  const dependenciesList = loadType === 'onChange' ? [isActivated] : []
   const asyncCallback = React.useCallback(() => {
-    console.log('showQRRRR', showQR)
-    if (!showQR) return
+    if (!isActivated && !personalNumber) return
 
     const proxyUrl = _getThisHost(proxyPrefixPath.uri)
     console.log('proxyUrl', proxyUrl)
 
     // eslint-disable-next-line consistent-return
-    return fetchQrCode(language, proxyUrl, chosenOptions)
+    return signByPersonalNumber(language, proxyUrl, chosenOptions)
   }, [...dependenciesList])
 
   const initialStatus = { status: STATUS.idle }
@@ -125,4 +124,40 @@ function useQrCodeAsync(chosenOptions, loadType = 'onChange') {
   return state
 }
 
-export { STATUS, ERROR_ASYNC, useAsync, useQrCodeAsync }
+// TODO: maybe move to a more general hook
+function useQRSignAsync(chosenOptions, loadType = 'onChange') {
+  const [{ proxyPrefixPath, language, languageIndex }] = useWebContext()
+  const { signByQR } = chosenOptions
+  const dependenciesList = loadType === 'onChange' ? [signByQR] : []
+  const asyncCallback = React.useCallback(() => {
+    if (!signByQR) return
+
+    const proxyUrl = _getThisHost(proxyPrefixPath.uri)
+    console.log('proxyUrl', proxyUrl)
+
+    // eslint-disable-next-line consistent-return
+    return sign(language, proxyUrl, chosenOptions)
+  }, [...dependenciesList])
+
+  const initialStatus = { status: STATUS.idle }
+
+  const state = useAsync(asyncCallback, initialStatus)
+
+  const { status: responseStatus, error = {} } = state || {}
+  const { errorType = '' } = error
+
+  useEffect(() => {
+    let isMounted = true
+    if (isMounted) {
+      if (errorType && errorType !== null) {
+        console.log('Alert ', error, languageIndex)
+        // renderAlertToTop(error, languageIndex)
+      } else dismountTopAlert()
+    }
+    return () => (isMounted = false)
+  }, [responseStatus])
+
+  return state
+}
+
+export { STATUS, ERROR_ASYNC, useAsync, useSignByPersonalNumberAsync, useQRSignAsync }
